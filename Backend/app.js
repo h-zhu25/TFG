@@ -9,9 +9,8 @@ app.use(express.json());
 connectDB();
 
 
-app.get('/', (req, res) => {
-  res.send("Hello from Backend!");
-});
+const userRoutes = require('./Routes/userRoutes');
+app.use('/api/users', userRoutes);
 
 
 const PORT = process.env.PORT || 4000;
