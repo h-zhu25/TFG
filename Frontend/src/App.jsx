@@ -5,8 +5,7 @@ import {
 import {
   LoginFormPage,
   ProConfigProvider,
-  ProFormCaptcha,
-  ProFormCheckbox,
+
   ProFormText,
 } from '@ant-design/pro-components';
 import { Button, Divider, Space, Tabs, message, theme } from 'antd';
@@ -16,9 +15,12 @@ import etsisiLogo from './assets/ETSISI_logo.png';
 import customLogo from './assets/ETSISI_logo2.png';
 import customLogo2 from './assets/UPM_logo.png';
 import { Tag } from 'antd';
+import { useNavigate } from 'react-router-dom';
+
 
 const App = () => {
   const [loginType, setLoginType] = useState('account');
+  const navigate = useNavigate();
   const { token } = theme.useToken();
 
   // 登录提交函数示例：可在此调用后端API
@@ -125,6 +127,7 @@ const App = () => {
                   width: 120,
                   fontWeight: 'bold',
                 }}
+                onClick={() => navigate('/register')}
               >
                 LOG UP
               </Button>
