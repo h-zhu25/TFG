@@ -26,31 +26,29 @@ const App = () => {
   // 登录提交函数示例：可在此调用后端API
   const handleLogin = async (values) => {
     console.log('提交的表单数据：', values);
-    // 假设你的后端接口是 POST /api/login
-    // try {
-    //   const response = await fetch('http://localhost:3001/api/login', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(values),
-    //   });
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     message.success('登录成功！');
-    //     // 后续操作：跳转页面 / 存储token等
-    //   } else {
-    //     message.error(result.message || '登录失败');
-    //   }
-    // } catch (error) {
-    //   console.error('请求错误：', error);
-    //   message.error('网络错误，请稍后重试！');
-    // }
-
-    // 这里先模拟登录成功提示
-    message.success('模拟：登录成功');
-    return true;
+    try {
+      const response = await fetch('http://localhost:4000/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
+      console.log('响应状态：', response.status);
+      const data = await response.json();
+      console.log('响应数据：', data);
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error('登录请求错误：', error);
+      message.error('网络错误，请稍后重试！');
+      return false;
+    }
   };
-
-
+  
+  
   return (
     <ProConfigProvider dark>
       <div style={{ backgroundColor: 'white', height: '100%' }}>
@@ -217,7 +215,7 @@ const App = () => {
           {loginType === 'account' && (
             <>
               <ProFormText
-                name="username"
+                name="email"
                 fieldProps={{
                   size: 'large',
                   prefix: <UserOutlined />,
