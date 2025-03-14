@@ -15,13 +15,22 @@ import etsisiLogo from './assets/ETSISI_logo.png';
 import customLogo from './assets/ETSISI_logo2.png';
 import customLogo2 from './assets/UPM_logo.png';
 import { Tag } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 
 
 const App = () => {
   const [loginType, setLoginType] = useState('account');
+  // 新增状态变量控制登录表单的显示与隐藏
+  const [showLoginForm, setShowLoginForm] = useState(false);
   const navigate = useNavigate();
   const { token } = theme.useToken();
+  const location = useLocation();
+  useEffect(() => {
+    if (location.pathname === '/login') {
+      setShowLoginForm(true);
+    }
+  }, [location]);
 
   // 登录提交函数示例：可在此调用后端API
   const handleLogin = async (values) => {
@@ -56,13 +65,18 @@ const App = () => {
           onFinish={handleLogin}
 
           submitter={{
-            // 方式1：只修改默认按钮文字
-            searchConfig: {
-              submitText: 'LOG IN', // 你想要显示的文字
+            render: (_, dom) => {
+              // showLoginForm 为 true 时显示提交按钮，否则不显示
+              return showLoginForm ? dom : null;
             },
+            searchConfig: {
+              submitText: 'LOG IN',
+            },
+            resetButtonProps: false,
           }}
 
           logo={null}
+          
           title={
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {/* 1. 这一行用来放 Logo 和主标题并排 */}
@@ -132,8 +146,6 @@ const App = () => {
             ),
           }}
           
-
-
           actions={
             <div
               style={{
@@ -212,28 +224,46 @@ const App = () => {
             />
           </Tabs>
 
-          {loginType === 'account' && (
-            <>
-              <ProFormText
-                name="email"
-                fieldProps={{
-                  size: 'large',
-                  prefix: <UserOutlined />,
-                }}
-                placeholder="Usuario: admin or user"
-                rules={[{ required: true, message: 'Por favor, ingrese el nombre de usuario!' }]}
-              />
-              <ProFormText.Password
-                name="password"
-                fieldProps={{
-                  size: 'large',
-                  prefix: <LockOutlined />,
-                }}
-                placeholder="Contraseña: ant.design"
-                rules={[{ required: true, message: 'Por favor, ingrese la contraseña!' }]}
-              />
-            </>
-          )}
+      {loginType === 'account' && (
+        <>
+        {showLoginForm ? (
+          <div className="fade-in">
+           <ProFormText
+             name="email"
+             fieldProps={{
+             size: 'large',
+             prefix: <UserOutlined />,
+             }}
+          placeholder="Usuario: admin or user"
+          rules={[{ required: true, message: 'Por favor, ingrese el nombre de usuario!' }]}
+        />
+        <ProFormText.Password
+          name="password"
+          fieldProps={{
+            size: 'large',
+            prefix: <LockOutlined />,
+           }}
+           placeholder="Contraseña: ant.design"
+           rules={[{ required: true, message: 'Por favor, ingrese la contraseña!' }]}
+         />
+        </div>
+      ) : (
+            <Button
+              className="hover-animate-button"
+              size="large"
+              style={{
+                borderRadius: '20px',
+                width: 120,
+                fontWeight: 'bold',
+              }}
+              onClick={() => navigate('/login')}
+            >
+              LOG IN
+            </Button>
+        )}
+        </>
+      )}
+
         </LoginFormPage>
       </div>
     </ProConfigProvider>

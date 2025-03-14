@@ -11,7 +11,8 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         {/* 访问 / 时，渲染登录页面 App */}
         <Route path="/" element={<App />} />
-
+        {/* 访问登录按钮 */}
+        <Route path="/login" element={<App />} />
         {/* 访问 /register 时，渲染 Register */}
         <Route path="/register" element={<Register />} />
       </Routes>
