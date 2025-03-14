@@ -1,33 +1,22 @@
-import { useState } from 'react'
-import './App.css'
+// src/components/Register.jsx
+import React from "react";
+import "./app.css";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const Register = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="register-container">
+      <div className="register-form-wrapper">
+        <h2>注册</h2>
+        <form className="register-form">
+          <input type="text" placeholder="用户名" required />
+          <input type="email" placeholder="邮箱" required />
+          <input type="password" placeholder="密码" required />
+          <input type="password" placeholder="确认密码" required />
+          <button type="submit">注册</button>
+        </form>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default App
+export default Register;

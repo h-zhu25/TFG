@@ -36,3 +36,7 @@
     opacity: 1;
   }
 }
+
+.ant-message {
+  z-index: 9999 !important;
+}
