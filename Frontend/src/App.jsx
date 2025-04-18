@@ -5,8 +5,7 @@ import {
 import {
   LoginFormPage,
   ProConfigProvider,
-  ProFormCaptcha,
-  ProFormCheckbox,
+
   ProFormText,
 } from '@ant-design/pro-components';
 import { Button, Divider, Space, Tabs, message, theme } from 'antd';
@@ -16,53 +15,88 @@ import etsisiLogo from './assets/ETSISI_logo.png';
 import customLogo from './assets/ETSISI_logo2.png';
 import customLogo2 from './assets/UPM_logo.png';
 import { Tag } from 'antd';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+
+// 全局配置 message，使其在页面顶部显示
+message.config({
+  top: 80,      // 弹窗距离页面顶部 100px
+  duration: 2,   // 持续时间为2秒
+  maxCount: 1,   // 同一时间最多显示1个弹窗
+});
 
 const App = () => {
   const [loginType, setLoginType] = useState('account');
+  // 新增状态变量控制登录表单的显示与隐藏
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const navigate = useNavigate();
   const { token } = theme.useToken();
+  const location = useLocation();
+  // 1. 使用 message.useMessage() 获取 messageApi
+  const [messageApi, contextHolder] = message.useMessage();
 
-  // 登录提交函数示例：可在此调用后端API
+  // 点击登录跳转至路由/login
+  useEffect(() => {
+    if (location.pathname === '/login') {
+      setShowLoginForm(true);
+    }
+  }, [location]);
+
+  // 连接后端调取函数以及错误信息弹窗
   const handleLogin = async (values) => {
     console.log('提交的表单数据：', values);
-    // 假设你的后端接口是 POST /api/login
-    // try {
-    //   const response = await fetch('http://localhost:3001/api/login', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(values),
-    //   });
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     message.success('登录成功！');
-    //     // 后续操作：跳转页面 / 存储token等
-    //   } else {
-    //     message.error(result.message || '登录失败');
-    //   }
-    // } catch (error) {
-    //   console.error('请求错误：', error);
-    //   message.error('网络错误，请稍后重试！');
-    // }
+    try {
+      const response = await fetch('http://localhost:4000/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
+      console.log('响应状态：', response.status);
+      const data = await response.json();
+      console.log('响应数据：', data);
 
-    // 这里先模拟登录成功提示
-    message.success('模拟：登录成功');
-    return true;
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        // 使用 messageApi 而非 message
+        messageApi.success('登录成功！');
+        navigate('/dashboard');
+        return true;
+      } else {
+        messageApi.error(data.message || '登录失败，请检查输入！');
+        return false;
+      }
+    } catch (error) {
+      console.error('登录请求错误：', error);
+      messageApi.error('网络错误，请稍后重试！');
+      return false;
+    }
   };
-
-
+  
+  // 主界面的所有组件代码
   return (
     <ProConfigProvider dark>
+      {contextHolder}
       <div style={{ backgroundColor: 'white', height: '100%' }}>
         <LoginFormPage
+          
           onFinish={handleLogin}
 
+          // 自带LOGIN IN按钮的样式修改代码
           submitter={{
-            // 方式1：只修改默认按钮文字
-            searchConfig: {
-              submitText: 'LOG IN', // 你想要显示的文字
+            render: (_, dom) => {
+              // showLoginForm 为 true 时显示提交按钮，否则不显示
+              return showLoginForm ? dom : null;
             },
+            searchConfig: {
+              submitText: 'LOG IN',
+            },
+            resetButtonProps: false,
           }}
-
+          
+          // 去掉默认的 Logo
           logo={null}
+          
+          // 登录组件的代码
           title={
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {/* 1. 这一行用来放 Logo 和主标题并排 */}
@@ -84,14 +118,14 @@ const App = () => {
             </div>
           }
           
-        
-          backgroundVideoUrl="/videos/BackroundVideo.mp4"
-          containerStyle={{
-            backgroundColor: 'rgba(20, 19, 19, 0.25)',
-            backdropFilter: 'blur(1px)',
-          }}
+          // 背景视频代码
+            backgroundVideoUrl="/videos/BackroundVideo.mp4"
+            containerStyle={{
+              backgroundColor: 'rgba(20, 19, 19, 0.25)',
+              backdropFilter: 'blur(1px)',
+            }}
 
-
+          // 注册组件代码
           activityConfig={{
             className: 'custom-activity-block',
             style: {
@@ -102,6 +136,7 @@ const App = () => {
               borderRadius: '8px',
               backgroundColor: 'rgba(255,255,255,0.05)',
             },
+            // 注册界面标题
             title: (
               <Tag
                 color="blue"
@@ -117,6 +152,7 @@ const App = () => {
             ),
             subTitle: 'Registro de profesores, estudiantes y administradores',
             action: (
+              // 注册界面按钮
               <Button
                 className="hover-animate-button"
                 size="large"
@@ -125,14 +161,14 @@ const App = () => {
                   width: 120,
                   fontWeight: 'bold',
                 }}
+                onClick={() => navigate('/register')}
               >
-                LOG UP
+                SIGN UP
               </Button>
             ),
           }}
-          
 
-
+          // 登录组件下面两个图标的代码
           actions={
             <div
               style={{
@@ -142,7 +178,8 @@ const App = () => {
                 flexDirection: 'column',
               }}
             >
-
+            {/* 两个图标的样式 */}
+              {/* 图标和上方内容分割线 */}
               <Divider plain>
                 <span
                   style={{
@@ -170,7 +207,7 @@ const App = () => {
                     <img
                       src={customLogo}
                       alt="customLogo"
-                      style={{ width: '100%', height: '100%' }} // 可能是 80%
+                      style={{ width: '100%', height: '100%' }} /* 图标大小调整 */
                     />
                 </div>
 
@@ -189,13 +226,15 @@ const App = () => {
                     <img
                       src={customLogo2}
                       alt="customLogo2"
-                      style={{ width: '100%', height: '100%' }} // 可能是 80%
+                      style={{ width: '100%', height: '100%' }} /* 图标大小调整 */
                     />
                 </div>
               </Space>
             </div>
           }
-        >
+          
+          // 登录选项代码
+          >
           <Tabs
             centered
             activeKey={loginType}
@@ -210,29 +249,49 @@ const App = () => {
               }
             />
           </Tabs>
-
+          
+          {/* 自带的登录组件框详细代码 */}
           {loginType === 'account' && (
             <>
+            {showLoginForm ? (
+              <div className="fade-in">
               <ProFormText
-                name="username"
+                name="email"
                 fieldProps={{
-                  size: 'large',
-                  prefix: <UserOutlined />,
+                size: 'large',
+                prefix: <UserOutlined />,
                 }}
-                placeholder="Usuario: admin or user"
-                rules={[{ required: true, message: 'Por favor, ingrese el nombre de usuario!' }]}
-              />
-              <ProFormText.Password
-                name="password"
-                fieldProps={{
-                  size: 'large',
-                  prefix: <LockOutlined />,
-                }}
-                placeholder="Contraseña: ant.design"
-                rules={[{ required: true, message: 'Por favor, ingrese la contraseña!' }]}
-              />
-            </>
+              placeholder="Usuario: admin or user"
+              rules={[{ required: true, message: 'Por favor, ingrese el nombre de usuario!' }]}
+            />
+            <ProFormText.Password
+              name="password"
+              fieldProps={{
+                size: 'large',
+                prefix: <LockOutlined />,
+              }}
+              placeholder="Contraseña: ant.design"
+              rules={[{ required: true, message: 'Por favor, ingrese la contraseña!' }]}
+            />
+            </div>
+            ) 
+            : (
+            <Button
+              className="hover-animate-button"
+              size="large"
+              style={{
+                borderRadius: '20px',
+                width: 120,
+                fontWeight: 'bold',
+              }}
+              onClick={() => navigate('/login')}
+            >
+              LOG IN
+            </Button>
+              )}
+              </>
           )}
+
         </LoginFormPage>
       </div>
     </ProConfigProvider>

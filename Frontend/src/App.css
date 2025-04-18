@@ -1,3 +1,4 @@
+/* 主界面CSS */
 #root {
   width: 100%;
   height: 100%;
@@ -6,6 +7,8 @@
   text-align: center; /* 可根据需要保留或移除 */
 }
 
+
+/* 按钮动画 */
 .hover-animate-button {
   background-color: #2941c7;
   color: #ffffff;
@@ -17,4 +20,23 @@
   background-color: #ffffff !important;
   color: #2941c7;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+
+/* 组件出现动画显示 */
+.fade-in {
+  animation: fadeIn 1s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ant-message {
+  z-index: 9999 !important;
 }
