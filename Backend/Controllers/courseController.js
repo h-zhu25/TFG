@@ -1,0 +1,57 @@
+// src/controllers/courseController.js
+const Course = require('../Models/Course');
+
+// GET /api/courses?grado=&semester=&priority=
+// 列出符合条件的课程列表
+exports.getAllCourses = async (req, res) => {
+  try {
+    const { grado, semester, priority } = req.query;
+    const filter = {};
+    if (grado)    filter.grados   = grado;
+    if (semester) filter.semester = Number(semester);
+    if (priority) filter.priority = Number(priority);
+
+    const list = await Course.find(filter)
+      .populate('teacher', 'name email')
+      .populate('grados', 'name code');
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// POST /api/courses
+exports.createCourse = async (req, res) => {
+  try {
+    const c = new Course(req.body);
+    await c.save();
+    res.status(201).json(c);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// PUT /api/courses/:id
+exports.updateCourse = async (req, res) => {
+  try {
+    const c = await Course.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!c) return res.status(404).json({ message: 'Course not found' });
+    res.json(c);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// DELETE /api/courses/:id
+exports.deleteCourse = async (req, res) => {
+  try {
+    await Course.findByIdAndDelete(req.params.id);
+    res.json({ message: 'DELETED SUCCEFUL' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
