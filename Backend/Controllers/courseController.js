@@ -55,3 +55,30 @@ exports.deleteCourse = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getCoursesByTeacher = async (req, res) => {
+    try {
+      const list = await Course
+        .find({ teacher: req.params.id })         
+        .populate('grados', 'name code')            
+        .populate('teacher', 'name email');         
+      res.json(list);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  };
+  
+  // GET /api/teachers/:id/students/:courseId
+  
+  exports.getStudentsByCourse = async (req, res) => {
+    try {
+      // 查询所有 selectedCourses.course 包含 courseId 的学生
+      const students = await User.find(
+        { 'selectedCourses.course': req.params.courseId, role: 'student' },
+        'name email studentID'                        
+      );
+      res.json(students);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  };

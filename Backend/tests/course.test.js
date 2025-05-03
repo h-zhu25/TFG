@@ -9,7 +9,7 @@ const User   = require('../Models/User');
 const Course = require('../Models/Course');
 
 let mongoServer;
-let adminToken;
+let adminToken, studentToken;
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
@@ -23,8 +23,18 @@ beforeAll(async () => {
   });
   adminToken = jwt.sign(
     { id: admin._id, role: admin.role },
-    process.env.JWT_SECRET || 'test-secret',
-    { expiresIn: '1d' }
+    process.env.JWT_SECRET || 'test-secret'
+  );
+
+  const student = await User.create({
+    name:     'Test Student',
+    email:    'student@test.com',
+    password: 'password123',
+    role:     'student'
+  });
+  studentToken = jwt.sign(
+    { id: student._id, role: student.role },
+    process.env.JWT_SECRET || 'test-secret'
   );
 });
 
@@ -38,15 +48,17 @@ afterAll(async () => {
 });
 
 describe('Course CRUD API', () => {
-
   it('should create a course (POST /api/courses)', async () => {
     const payload = {
       name:          'Course A',
-      code:          'A100',                  // 写给后端可选字段，实际模型中会被丢弃
-      cuantrimestre: '2025-1',                // 模型必填 :contentReference[oaicite:0]{index=0}:contentReference[oaicite:1]{index=1}
-      credits:       3,                      // 模型必填 :contentReference[oaicite:2]{index=2}:contentReference[oaicite:3]{index=3}
-      classTime:     'Mon 08:00-10:00',       // 模型定义为 String :contentReference[oaicite:4]{index=4}:contentReference[oaicite:5]{index=5}
-      teacher:       new mongoose.Types.ObjectId()
+      code:          'A100',
+      cuantrimestre: '2025-1',
+      semester:      1,
+      credits:       3,
+      classTime:     [{ day:'Mon', start:'08:00', end:'10:00' }],
+      teacher:       new mongoose.Types.ObjectId(),
+      grados:        [new mongoose.Types.ObjectId()],
+      priority:      1
     };
 
     const res = await request(app)
@@ -54,7 +66,6 @@ describe('Course CRUD API', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send(payload);
 
-    // 状态码 201，且直接在 res.body 拿到保存后的课程对象
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject({
       name:          'Course A',
@@ -64,20 +75,29 @@ describe('Course CRUD API', () => {
   });
 
   it('should retrieve the list of courses (GET /api/courses)', async () => {
+    // 用数组格式初始化两个课程
     await Course.create([
       {
         name:          'X',
+        code:          'X1',
         cuantrimestre: '2025-1',
+        semester:      2,
         credits:       2,
-        classTime:     'Tue 10:00-12:00',
-        teacher:       new mongoose.Types.ObjectId()
+        classTime:     [{ day:'Tue', start:'10:00', end:'12:00' }],
+        teacher:       new mongoose.Types.ObjectId(),
+        grados:        [new mongoose.Types.ObjectId()],
+        priority:      2
       },
       {
         name:          'Y',
+        code:          'Y1',
         cuantrimestre: '2025-1',
+        semester:      1,
         credits:       4,
-        classTime:     'Wed 14:00-16:00',
-        teacher:       new mongoose.Types.ObjectId()
+        classTime:     [{ day:'Wed', start:'14:00', end:'16:00' }],
+        teacher:       new mongoose.Types.ObjectId(),
+        grados:        [new mongoose.Types.ObjectId()],
+        priority:      3
       }
     ]);
 
@@ -92,10 +112,14 @@ describe('Course CRUD API', () => {
   it('should update a course (PUT /api/courses/:id)', async () => {
     const course = await Course.create({
       name:          'Old Name',
+      code:          'OLD1',
       cuantrimestre: '2025-1',
+      semester:      1,
       credits:       5,
-      classTime:     'Thu 08:00-10:00',
-      teacher:       new mongoose.Types.ObjectId()
+      classTime:     [{ day:'Thu', start:'08:00', end:'10:00' }],
+      teacher:       new mongoose.Types.ObjectId(),
+      grados:        [new mongoose.Types.ObjectId()],
+      priority:      4
     });
 
     const res = await request(app)
@@ -111,10 +135,14 @@ describe('Course CRUD API', () => {
   it('should delete a course (DELETE /api/courses/:id)', async () => {
     const toDelete = await Course.create({
       name:          'To Delete',
+      code:          'DEL1',
       cuantrimestre: '2025-1',
+      semester:      2,
       credits:       1,
-      classTime:     'Fri 12:00-14:00',
-      teacher:       new mongoose.Types.ObjectId()
+      classTime:     [{ day:'Fri', start:'12:00', end:'14:00' }],
+      teacher:       new mongoose.Types.ObjectId(),
+      grados:        [new mongoose.Types.ObjectId()],
+      priority:      2
     });
 
     const res = await request(app)
@@ -125,24 +153,25 @@ describe('Course CRUD API', () => {
     expect(res.body.message).toBe('DELETED SUCCEFUL');
   });
 
-  it('should forbid non-admin users (403)', async () => {
-    const student = await User.create({
-      name:     'Student',
-      email:    'student@test.com',
-      password: 'password',
-      role:     'student'
-    });
-    const studentToken = jwt.sign(
-      { id: student._id, role: student.role },
-      process.env.JWT_SECRET || 'test-secret'
-    );
+  it('non-admin should be forbidden to CREATE (403)', async () => {
+    const payload = {
+      name:          'Bad Course',
+      code:          'BAD1',
+      cuantrimestre: '2025-1',
+      semester:      1,
+      credits:       1,
+      classTime:     [{ day:'Mon', start:'00:00', end:'01:00' }],
+      teacher:       new mongoose.Types.ObjectId(),
+      grados:        [new mongoose.Types.ObjectId()],
+      priority:      1
+    };
 
     const res = await request(app)
-      .get('/api/courses')
-      .set('Authorization', `Bearer ${studentToken}`);
+      .post('/api/courses')
+      .set('Authorization', `Bearer ${studentToken}`)
+      .send(payload);
 
     expect(res.status).toBe(403);
     expect(res.body.message).toBe('Falta Permission');
   });
-
 });
