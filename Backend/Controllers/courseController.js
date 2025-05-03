@@ -1,11 +1,19 @@
 // src/controllers/courseController.js
 const Course = require('../Models/Course');
+const User   = require('../Models/User');
 
-// GET /api/courses?grado=&semester=&priority=
-// 列出符合条件的课程列表
+// src/controllers/courseController.js
 exports.getAllCourses = async (req, res) => {
   try {
     const { grado, semester, priority } = req.query;
+    const userRole = req.user.role;
+
+   
+    if (userRole !== 'admin' && !grado) {
+      return res.status(403).json({ message: 'Falta Permission' });
+    }
+
+   
     const filter = {};
     if (grado)    filter.grados   = grado;
     if (semester) filter.semester = Number(semester);
@@ -13,7 +21,8 @@ exports.getAllCourses = async (req, res) => {
 
     const list = await Course.find(filter)
       .populate('teacher', 'name email')
-      .populate('grados', 'name code');
+      .populate('grados',  'name code');
+
     res.json(list);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -55,3 +64,30 @@ exports.deleteCourse = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getCoursesByTeacher = async (req, res) => {
+    try {
+      const list = await Course
+        .find({ teacher: req.params.id })         
+        .populate('grados', 'name code')            
+        .populate('teacher', 'name email');         
+      res.json(list);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  };
+  
+  // GET /api/teachers/:id/students/:courseId
+  
+  exports.getStudentsByCourse = async (req, res) => {
+    try {
+      // 查询所有 selectedCourses.course 包含 courseId 的学生
+      const students = await User.find(
+        { 'selectedCourses.course': req.params.courseId, role: 'student' },
+        'name email studentID'                        
+      );
+      res.json(students);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  };
