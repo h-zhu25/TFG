@@ -13,7 +13,9 @@ app.use('/api/courses', require('./Routes/courseRoutes'));
 app.use('/api/grados', require('./Routes/gradoRoutes'));
 app.use('/api/teachers', require('./Routes/teacherRoutes'));
 
-// 404
+const scheduleRoutes = require('./Routes/scheduleRoutes');
+app.use('/api/schedule', scheduleRoutes);
+
 app.use((req, res) => res.status(404).json({ message: 'Not Found' }));
 
 

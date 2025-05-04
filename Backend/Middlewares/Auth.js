@@ -1,25 +1,35 @@
-
+// Backend/Middlewares/Auth.js
 const jwt = require('jsonwebtoken');
 
+/**
+ * Verifies the presence and validity of a JWT in the Authorization header.
+ * If valid, attaches `req.user = { id, role }`.
+ */
 exports.authenticateJWT = (req, res, next) => {
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'falta token' });
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Missing token' });
   }
-  const token = auth.split(' ')[1];
+  const token = authHeader.split(' ')[1];
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    // payload.id, payload.role
     req.user = { id: payload.id, role: payload.role };
     next();
   } catch (err) {
-    res.status(401).json({ message: 'Token invaku' });
+    return res.status(401).json({ message: 'Invalid token' });
   }
 };
 
-exports.authorizeRole = (requiredRole) => (req, res, next) => {
-  if (req.user.role !== requiredRole) {
-    return res.status(403).json({ message: 'Falta Permission' });
-  }
-  next();
+/**
+ * Role-based authorization middleware.
+ * Pass in one or more allowed roles, e.g. authorizeRole('student', 'teacher', 'admin').
+ * If `req.user.role` is not in the list, responds with 403.
+ */
+exports.authorizeRole = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Forbidden: insufficient permissions' });
+    }
+    next();
+  };
 };
