@@ -58,16 +58,16 @@ const App = () => {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         // 使用 messageApi 而非 message
-        messageApi.success('登录成功！');
+        messageApi.success('¡Inicio de sesión exitoso!');
         navigate('/dashboard');
         return true;
       } else {
-        messageApi.error(data.message || '登录失败，请检查输入！');
+        messageApi.error(data.message || '¡Inicio de sesión fallido!');
         return false;
       }
     } catch (error) {
       console.error('登录请求错误：', error);
-      messageApi.error('网络错误，请稍后重试！');
+      messageApi.error('Error de red, ¡por favor intenta de nuevo más tarde!');
       return false;
     }
   };
@@ -119,7 +119,7 @@ const App = () => {
           }
           
           // 背景视频代码
-            backgroundVideoUrl="/videos/BackroundVideo.mp4"
+            backgroundVideoUrl="/videos/BackgroundVideo.mp4"
             containerStyle={{
               backgroundColor: 'rgba(20, 19, 19, 0.25)',
               backdropFilter: 'blur(1px)',
@@ -261,7 +261,7 @@ const App = () => {
                 size: 'large',
                 prefix: <UserOutlined />,
                 }}
-              placeholder="Usuario: admin or user"
+              placeholder="Usuario: "
               rules={[{ required: true, message: 'Por favor, ingrese el nombre de usuario!' }]}
             />
             <ProFormText.Password
@@ -270,7 +270,7 @@ const App = () => {
                 size: 'large',
                 prefix: <LockOutlined />,
               }}
-              placeholder="Contraseña: ant.design"
+              placeholder="Contraseña: "
               rules={[{ required: true, message: 'Por favor, ingrese la contraseña!' }]}
             />
             </div>

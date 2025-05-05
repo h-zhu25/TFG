@@ -1,0 +1,133 @@
+/* 整体容器：定位 & 视频背景 */
+.register-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* 背景视频 */
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+/* 标题 */
+.register-form-wrapper h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #fff;
+}
+
+/* 表单样式 */
+.register-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 输入框样式 */
+.register-form input {
+  margin-bottom: 15px;
+  padding: 14px;
+  font-size: 16px;
+  color: #333;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.register-form input:focus {
+  border-color: #6a11cb;
+}
+
+.role-buttons {
+  /* 让按钮平分水平空间并在中间对齐 */
+  display: flex;
+  justify-content: center;
+  /* 通过 gap 让它们有固定间隔，也可以用 margin 来实现 */
+  gap: 20px; 
+  margin-top: 30px; /* 调整你想要的距离 */
+}
+
+
+/* 欢迎信息样式 */
+.welcome-message {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  text-align: center;
+  font-size: 35px;
+  color: #fff;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeIn 2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 原 .confirm-registration 已移除，现在“确认注册”按钮放入 Modal 内部 */
+.big-button {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  padding: 18px 22px;
+  height: auto;
+  line-height: 1.2;
+}
+
+.role-buttons .ant-btn {
+  position: relative; /* 使伪元素绝对定位相对于按钮 */
+  font-family: 'Baloo 2', sans-serif; /* 使用 Baloo 2，后备 sans-serif */
+  z-index: 0;
+  font-size: 25px;
+  padding: 30px 20px;
+  border-radius: 20px;
+  background: #1a1919; /* 初始背景色 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden; /* 确保伪元素不超出按钮区域 */
+}
+
+/* 添加伪元素，作为渐变背景层 */
+.role-buttons .ant-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #64c7d8, #052cec);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1; /* 置于按钮文字后面 */
+}
+
+/* 鼠标悬停时同时执行放大、阴影和伪元素渐变动画 */
+.role-buttons .ant-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(64, 169, 255, 0.4);
+}
+
+/* 鼠标悬停时，显示渐变背景 */
+.role-buttons .ant-btn:hover::after {
+  opacity: 1;
+}
+
