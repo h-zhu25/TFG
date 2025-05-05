@@ -15,7 +15,8 @@ const TimeSlotSchema = new Schema({
   end:       { type: String, required: true },                     // e.g. '11:00'
   classroom: { type: String, required: true },                     // 教室标识
   teacher:   { type: Schema.Types.ObjectId, ref: 'User', required: true },  // 授课老师
-  grados:    [{ type: Schema.Types.ObjectId, ref: 'Grado', required: true }] // 哪些专业可选
+  grados:    [{ type: Schema.Types.ObjectId, ref: 'Grado', required: true }], // 哪些专业可选
+  group:     { type: String }
 });
 
 const courseSchema = new Schema({
