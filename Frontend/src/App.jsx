@@ -5,7 +5,6 @@ import {
 import {
   LoginFormPage,
   ProConfigProvider,
-
   ProFormText,
 } from '@ant-design/pro-components';
 import { Button, Divider, Space, Tabs, message, theme } from 'antd';
@@ -55,20 +54,42 @@ const App = () => {
       const data = await response.json();
       console.log('响应数据：', data);
 
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        // 使用 messageApi 而非 message
-        messageApi.success('¡Inicio de sesión exitoso!');
-        navigate('/dashboard');
-        return true;
-      } else {
+      if (!response.ok) {
+        // 登录失败，展示错误信息
         messageApi.error(data.message || '¡Inicio de sesión fallido!');
-        return false;
+        return;
+      }
+
+      // 登录成功，保存 token 并解析角色
+      const { token: jwtToken } = data;
+      localStorage.setItem('token', jwtToken);
+      let userRole = '';
+      try {
+        // 简单解析 JWT 获取角色
+        const payload = JSON.parse(atob(jwtToken.split('.')[1]));
+        userRole = payload.role;
+      } catch (e) {
+        console.error('解析 token 时出错：', e);
+      }
+      localStorage.setItem('role', userRole);
+
+      // 根据角色跳转
+      if (userRole === 'admin') {
+        messageApi.success('¡Bienvenido, Administrador!');
+        navigate('/login/admin', { replace: true });
+      } else if (userRole === 'teacher') {
+        messageApi.success('¡Bienvenido, Profesor!');
+        navigate('/login/teacher', { replace: true });
+      } else if (userRole === 'student') {
+        messageApi.success('¡Bienvenido, Estudiante!');
+        navigate('/login/student', { replace: true });
+      } else {
+        messageApi.success('¡Inicio de sesión exitoso!');
+        navigate('/dashboard', { replace: true });
       }
     } catch (error) {
       console.error('登录请求错误：', error);
       messageApi.error('Error de red, ¡por favor intenta de nuevo más tarde!');
-      return false;
     }
   };
   
