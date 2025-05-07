@@ -16,3 +16,5 @@ If you are developing a production application, we recommend using TypeScript an
 admin@upm.es
 adminpass
 
+E:\TFG\Frontend\admin\src> npm install jwt-decode
+
