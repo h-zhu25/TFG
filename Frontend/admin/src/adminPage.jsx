@@ -1,38 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import {
-  UserOutlined,
-  LaptopOutlined,
-  NotificationOutlined,
-} from '@ant-design/icons';
+import {jwtDecode} from 'jwt-decode';
+import { UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Avatar, theme } from 'antd';
-import './adminPage.css';  // ← 引入新建的 CSS
+import './adminPage.css';
+import logoImg from './assets/ETSISI_logo2.png';
 
 const { Header, Sider, Content } = Layout;
 
-// 侧边菜单数据（保持不变）
-const items2 = [UserOutlined, LaptopOutlined, NotificationOutlined].map(
-  (icon, index) => {
-    const key = String(index + 1);
-    return {
-      key: `sub${key}`,
-      icon: React.createElement(icon),
-      label: `subnav ${key}`,
-      children: new Array(4).fill(null).map((_, j) => ({
-        key: index * 4 + j + 1,
-        label: `option${index * 4 + j + 1}`,
-      })),
-    };
-  }
-);
-
 const App = () => {
   const [user, setUser] = useState(null);
+  const [grados, setGrados] = useState([]);
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  // 拉取 profile …（保持不变）
+  // 拉取用户信息
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -54,6 +37,32 @@ const App = () => {
     }
   }, []);
 
+  // 拉取 Grados 列表
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    fetch('http://localhost:4000/api/grados', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('获取 Grados 失败');
+        return res.json();
+      })
+      .then(data => setGrados(data))
+      .catch(console.error);
+  }, []);
+
+  // 基于后端数据构造菜单项
+  const menuItems = grados.map(grado => ({
+    key: grado._id,
+    icon: React.createElement(UserOutlined),
+    label: grado.name,
+    children: [
+      { key: `${grado._id}-code`, label: `Código: ${grado.code}` },
+      { key: `${grado._id}-department`, label: grado.department },
+    ],
+  }));
+
   return (
     <Layout
       className="app-layout"
@@ -63,31 +72,32 @@ const App = () => {
       }}
     >
       <Header className="app-header">
-        <div className="demo-logo" />
+        <div className="logo-img">
+          <img src={logoImg} alt="Logo" />
+        </div>
+        <div className="main-title">Sistema del Administrador</div>
         {user && (
           <div className="user-info">
             <Avatar size="large" icon={<UserOutlined />} />
             <div className="user-details">
               <div className="user-name">{user.name}</div>
-              <div className="user-username">@{user.username}</div>
             </div>
           </div>
         )}
       </Header>
 
-      <Layout>
+      <Layout className="app-body">
         <Sider className="app-sider">
           <Menu
             mode="inline"
-            defaultSelectedKeys={['1']}
-            defaultOpenKeys={['sub1']}
+            defaultSelectedKeys={grados.length ? [grados[0]._id] : []}
+            defaultOpenKeys={grados.map(g => g._id)}
             style={{ height: '100%', borderRight: 0 }}
-            items={items2}
+            items={menuItems}
           />
         </Sider>
         <Layout className="app-content-wrapper">
           <Content className="app-content">
-            {/* 你的主要内容放这里 */}
             这里才是你的主要内容
           </Content>
         </Layout>
