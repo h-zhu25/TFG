@@ -77,11 +77,27 @@ exports.getProfile = async (req, res) => {
     // 只选 username 和 name
     const user = await User.findById(req.user.id).select('username name role');
     if (!user) {
-      return res.status(404).json({ message: '用户不存在' });
+      return res.status(404).json({ message: 'El usuario no existe.' });
     }
     res.json({ user });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: '服务器错误' });
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+};
+
+exports.listUsersByRole = async (req, res) => {
+  try {
+    // 支持按 role 过滤（如 ?role=teacher）
+    const filter = {};
+    if (req.query.role) {
+      filter.role = req.query.role;
+    }
+    // 只返回 _id 和 name 字段，不泄露密码等敏感信息
+    const users = await User.find(filter, '_id name');
+    res.json(users);
+  } catch (err) {
+    console.error('listUsersByRole error:', err);
+    res.status(500).json({ message: 'No se puede obtener la lista de usuarios' });
   }
 };

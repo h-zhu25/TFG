@@ -41,7 +41,7 @@ exports.createCourse = async (req, res) => {
     await c.save();
 
     // ——【新增】—— 保存后 populate 时段里的 teacher 信息
-    await c.populate('classTime.teacher', 'name email').execPopulate();
+    await c.populate('classTime.teacher', 'name email');
 
     res.status(201).json(c);
   } catch (err) {
@@ -61,7 +61,7 @@ exports.updateCourse = async (req, res) => {
     if (!c) return res.status(404).json({ message: 'Course not found' });
 
     // ——【新增】—— 更新后同样 populate 时段教师
-    await c.populate('classTime.teacher', 'name email').execPopulate();
+    await c.populate('classTime.teacher', 'name email');
 
     res.json(c);
   } catch (err) {

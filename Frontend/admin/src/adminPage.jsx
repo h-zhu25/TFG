@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { UserOutlined } from '@ant-design/icons';
 import {
   Layout,
@@ -11,11 +11,13 @@ import {
   Divider,
   Typography,
   Table,
+  Button,
+  message,
 } from 'antd';
+import AddCourseModal from './addCourseModal';
 import './adminPage.css';
 import logoImg from './assets/ETSISI_logo2.png';
-import { Button } from 'antd';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -26,6 +28,8 @@ export default function AdminPage() {
   const [grados, setGrados] = useState([]);
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedGradoId, setSelectedGradoId] = useState(null);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -33,12 +37,11 @@ export default function AdminPage() {
 
   const token = localStorage.getItem('token');
 
-    // 退出登录
-    const handleLogout = () => {
-      localStorage.removeItem('token');
-      // 返回到上一个界面
-      navigate(-1);
-    };
+  // 退出登录
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate(-1);
+  };
 
   // 拉取用户信息
   useEffect(() => {
@@ -49,7 +52,7 @@ export default function AdminPage() {
         fetch('http://localhost:4000/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         })
-          .then(res => res.ok ? res.json() : Promise.reject('获取用户信息失败'))
+          .then(res => (res.ok ? res.json() : Promise.reject('Error al obtener la información del usuario')))
           .then(data => setUser(data.user))
           .catch(console.error);
       }
@@ -64,7 +67,7 @@ export default function AdminPage() {
     fetch('http://localhost:4000/api/grados', {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.ok ? res.json() : Promise.reject('获取 Grados 失败'))
+      .then(res => (res.ok ? res.json() : Promise.reject('Error al obtener los grados')))
       .then(data => setGrados(data))
       .catch(console.error);
   }, [token]);
@@ -75,7 +78,7 @@ export default function AdminPage() {
     fetch('http://localhost:4000/api/courses', {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.ok ? res.json() : Promise.reject('获取 Courses 失败'))
+      .then(res => (res.ok ? res.json() : Promise.reject('Error al obtener los cursos')))
       .then(data => setCourses(data))
       .catch(console.error);
   }, [token]);
@@ -96,21 +99,49 @@ export default function AdminPage() {
 
     return {
       key: grado._id,
-      icon: <UserOutlined />, // 可替换为专业图标
+      icon: <UserOutlined />,
       label: grado.name,
       children: [
-        { key: `${grado._id}-sem1`, label: 'Semestre 1', children: sem1.length ? sem1 : [{ key: `${grado._id}-1-empty`, label: '无课程' }] },
-        { key: `${grado._id}-sem2`, label: 'Semestre 2', children: sem2.length ? sem2 : [{ key: `${grado._id}-2-empty`, label: '无课程' }] },
+        { key: `${grado._id}-sem1`, label: 'Semestre 1', children: sem1.length ? sem1 : [{ key: `${grado._id}-1-empty`, label: 'Sin cursos' }] },
+        { key: `${grado._id}-sem2`, label: 'Semestre 2', children: sem2.length ? sem2 : [{ key: `${grado._id}-2-empty`, label: 'Sin cursos' }] },
       ],
     };
   });
 
-  // 菜单点击处理：根据 key 获取 courseId 并设置详情
+  // 侧边菜单点击处理
   const handleMenuClick = e => {
     const parts = e.key.split('-');
+    const gradoId = parts[0];
+    setSelectedGradoId(gradoId);
     const courseId = parts[2];
-    const course = courses.find(c => c._id === courseId);
-    setSelectedCourse(course || null);
+    if (courseId) {
+      const course = courses.find(c => c._id === courseId);
+      setSelectedCourse(course || null);
+    } else {
+      setSelectedCourse(null);
+    }
+  };
+
+  // 子菜单展开时选中对应 grado
+  const handleOpenChange = openKeys => {
+    const last = openKeys[openKeys.length - 1];
+    setSelectedGradoId(last || null);
+  };
+
+  // 打开/关闭添加课程模态框
+  const handleOpenAddModal = () => {
+    if (!selectedGradoId) {
+      message.warning('Por favor, seleccione una carrera primero');
+      return;
+    }
+    setIsAddModalVisible(true);
+  };
+  const handleCloseAddModal = () => setIsAddModalVisible(false);
+
+  // 添加课程后更新列表并关闭模态框
+  const handleCourseAdded = newCourse => {
+    setCourses(prev => [...prev, newCourse]);
+    setIsAddModalVisible(false);
   };
 
   return (
@@ -123,25 +154,29 @@ export default function AdminPage() {
             <Avatar size="large" icon={<UserOutlined />} />
             <div className="user-details">
               <div className="user-name">{user.name}</div>
-              <Button
-                type="link"
-                className="logout-btn"
-                onClick={handleLogout}
-                style={{ marginLeft: 16 }}
-              >
-                Cerrar sesión
-              </Button>
+              <Button type="link" className="logout-btn" onClick={handleLogout} style={{ marginLeft: 16 }}>Cerrar sesión</Button>
             </div>
           </div>
         )}
       </Header>
 
       <Layout className="app-body">
-        <Sider className="app-sider">
+        <Sider className="app-sider" style={{ background: colorBgContainer }}>
+          <Button
+            type="primary"
+            ghost
+            size="middle"                  // 小号按钮
+            style={{ margin: '14px', width: 150 }}  // 固定 100px 宽度
+            onClick={handleOpenAddModal}
+            disabled={!selectedGradoId}
+          >
+            Agregar curso
+         </Button>
           <Menu
             mode="inline"
             items={menuItems}
             onClick={handleMenuClick}
+            onOpenChange={handleOpenChange}
             style={{ height: '100%', borderRight: 0 }}
           />
         </Sider>
@@ -149,11 +184,36 @@ export default function AdminPage() {
         <Layout className="app-content-wrapper">
           <Content className="app-content">
             {selectedCourse ? (
-            <Card
-              className="course-card"
-              title={`${selectedCourse.code} – ${selectedCourse.name}`}
-              bordered={false}
-            >
+              <Card
+                  className="course-card"
+                  title={`${selectedCourse.code} – ${selectedCourse.name}`}
+                  bordered={false}
+                  extra={
+                    <Button
+                      danger
+                      onClick={async () => {
+                        if (!window.confirm('¿Seguro que quieres eliminar este curso?')) return;
+                        try {
+                          const res = await fetch(
+                            `http://localhost:4000/api/courses/${selectedCourse._id}`,
+                            {
+                              method: 'DELETE',
+                              headers: { Authorization: `Bearer ${token}` },
+                            }
+                          );
+                          if (!res.ok) throw new Error();
+                          setCourses(prev => prev.filter(c => c._id !== selectedCourse._id));
+                          setSelectedCourse(null);
+                          message.success('Curso eliminado correctamente');
+                        } catch {
+                          message.error('No se pudo eliminar el curso');
+                        }
+                      }}
+                    >
+                      Eliminar curso
+                    </Button>
+                  }
+                >
                 <Descriptions bordered column={1} size="small">
                   <Descriptions.Item label="Código">{selectedCourse.code}</Descriptions.Item>
                   <Descriptions.Item label="Nombre">{selectedCourse.name}</Descriptions.Item>
@@ -174,8 +234,8 @@ export default function AdminPage() {
                       día: ct.day,
                       inicio: ct.start,
                       fin: ct.end,
-                      aula: ct.classroom,
                       grupo: ct.group,
+                      aula: ct.classroom,  
                       profesor: ct.teacher?.name || '—',
                     }))
                   }
@@ -185,7 +245,7 @@ export default function AdminPage() {
                     { title: 'Fin', dataIndex: 'fin', key: 'fin' },
                     { title: 'Aula', dataIndex: 'aula', key: 'aula' },
                     { title: 'Grupo', dataIndex: 'grupo', key: 'grupo' },
-                    { title: 'Profesor',dataIndex: 'profesor',key: 'profesor' },
+                    { title: 'Profesor', dataIndex: 'profesor', key: 'profesor' },
                   ]}
                   pagination={false}
                   size="small"
@@ -194,12 +254,20 @@ export default function AdminPage() {
               </Card>
             ) : (
               <div style={{ textAlign: 'center', color: '#888', padding: '40px' }}>
-                Por favor, selecciona un curso para ver los detalles.
+                Por favor, selecciona un curso para ver los detalles。
               </div>
             )}
           </Content>
         </Layout>
       </Layout>
+
+      <AddCourseModal
+        visible={isAddModalVisible}
+        onCancel={handleCloseAddModal}
+        onCourseAdded={handleCourseAdded}
+        selectedGradoId={selectedGradoId}
+        token={token}
+      />
     </Layout>
   );
 }
