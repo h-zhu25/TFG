@@ -98,4 +98,32 @@ async function generateSchedules(selectedCourseIds) {
 
   // 4. 如果完全没有可行组合，标记所有课程为 doNotRecommend
   if (results.length === 0) {
-    courses.forEach(c => cannotFit.add(c._id.toString_
+    courses.forEach(c => cannotFit.add(c._id.toString()));
+  }
+
+  // 5. 按得分排序并格式化输出
+  const sorted = results
+    .map(sch => ({ sch, score: computeScore(sch) }))
+    .sort((a, b) => a.score - b.score)
+    .map(o => o.sch);
+
+  const formatted = sorted.map(schedule =>
+    schedule.map(({ course, slot }) => ({
+      courseId:   course._id.toString(),
+      courseName: course.name,
+      day:        slot.day,
+      startTime:  slot.start,
+      endTime:    slot.end,
+      classroom:  slot.classroom,
+      teacher:    slot.teacher.toString(),
+      group:      slot.group || null
+    }))
+  );
+
+  return {
+    schedules: formatted,
+    doNotRecommend: Array.from(cannotFit)
+  };
+}
+
+module.exports = { generateSchedules };
