@@ -32,7 +32,7 @@ const courseSchema = new Schema({
 
   // （可选）如果你还想保留顶层对所有专业的快速过滤：
   grados: [
-    { type: Schema.Types.ObjectId, ref: 'Grado', required: true }
+    { type: String, ref: 'Grado', required: true }
   ],
 
   priority: {
