@@ -7,21 +7,9 @@ exports.getSchedules = async (req, res) => {
     if (!Array.isArray(selectedCourseIds) || selectedCourseIds.length === 0) {
       return res.status(400).json({ message: 'At least one course must be selected' });
     }
-
+  // 直接透传 service 层返回的数据
     const { schedules, doNotRecommend } = await generateSchedules(selectedCourseIds);
-
-    // Format the output for the front end
-    const formatted = schedules.map(schedule =>
-      schedule.map(({ course, slot }) => ({
-        courseId:   course._id,
-        courseName: course.name,
-        day:        slot.day,
-        startTime:  slot.start,
-        endTime:    slot.end
-      }))
-    );
-
-    res.json({ schedules: formatted, doNotRecommend });
+    res.json({ schedules, doNotRecommend });
   } catch (err) {
     console.error('Failed to generate schedules:', err);
     res.status(500).json({ message: 'Internal server error' });
