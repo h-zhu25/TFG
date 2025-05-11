@@ -84,7 +84,7 @@ const AddCourseModal = ({
       onCancel={() => { form.resetFields(); onCancel(); }}
       footer={null}
       destroyOnClose
-      width={1000}
+      width={1300}
       bodyStyle={{ maxHeight: '80vh', overflowY: 'auto' }} // （可选）让内容区在太高时滚动
     >
       <Form
@@ -212,10 +212,12 @@ const AddCourseModal = ({
                     rules={[{ required: true, message: 'Ingrese aula' }]}
                   >
                     <Input placeholder="Aula" />
+                  
                   </Form.Item>
                   <Form.Item {...rest} name={[name, 'group']}>
                     <Input placeholder="Grupo (Opcional)" />
                   </Form.Item>
+
                   <Form.Item
                     {...rest}
                     name={[name, 'teacher']}
@@ -236,6 +238,19 @@ const AddCourseModal = ({
                       ))}
                     </Select>
                   </Form.Item>
+
+                {/* —— 新增 —— */}
+                  <Form.Item
+                  >
+                    <Select mode="multiple" placeholder="Seleccione grados">
+                      {grados.map(g => (
+                        <Option key={g._id} value={g._id.toString()}>
+                          {g.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                          
                   <MinusCircleOutlined onClick={() => remove(name)} />
                 </Space>
               ))}
