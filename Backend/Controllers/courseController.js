@@ -1,5 +1,6 @@
 // src/controllers/courseController.js
 const Course = require('../Models/Course');
+const mongoose = require('mongoose');
 const User   = require('../Models/User');
 
 // GET /api/courses
@@ -41,7 +42,7 @@ exports.createCourse = async (req, res) => {
     await c.save();
 
     // ——【新增】—— 保存后 populate 时段里的 teacher 信息
-    await c.populate('classTime.teacher', 'name email').execPopulate();
+    await c.populate('classTime.teacher', 'name email');
 
     res.status(201).json(c);
   } catch (err) {
@@ -61,7 +62,7 @@ exports.updateCourse = async (req, res) => {
     if (!c) return res.status(404).json({ message: 'Course not found' });
 
     // ——【新增】—— 更新后同样 populate 时段教师
-    await c.populate('classTime.teacher', 'name email').execPopulate();
+    await c.populate('classTime.teacher', 'name email');
 
     res.json(c);
   } catch (err) {
@@ -70,12 +71,43 @@ exports.updateCourse = async (req, res) => {
 };
 
 // DELETE /api/courses/:id
-// （仅 Admin）  
 exports.deleteCourse = async (req, res) => {
   try {
-    await Course.findByIdAndDelete(req.params.id);
+    const { id: courseId } = req.params;
+    const { grado }     = req.query;
+
+    // 如果指定了 grado，就只移除这一门课在该 grado 下的关联
+    if (grado) {
+      // 1. 先把整条课程找出来
+      const course = await Course.findById(courseId);
+      if (!course) {
+        return res.status(404).json({ message: 'Course not found.' });
+      }
+
+      // 2. Mongoose 里的 Array.pull() 会自动把字符串转 ObjectId
+      course.grados.pull(grado);
+
+      // 3. 同样对每个 classTime 子文档里的 grados 数组也 pull 一遍
+      course.classTime.forEach(ct => {
+        ct.grados.pull(grado);
+      });
+
+      // 4. 存回数据库
+      await course.save();
+
+      // 5. 再次查一遍并 populate 返回给前端
+      const updated = await Course.findById(courseId)
+        .populate('classTime.teacher', 'name email')
+        .populate('grados', 'name code');
+
+      return res.json(updated);
+    }
+
+    // 否则就彻底删掉整条课程
+    await Course.findByIdAndDelete(courseId);
     res.json({ message: 'DELETED SUCCESSFUL' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 };
