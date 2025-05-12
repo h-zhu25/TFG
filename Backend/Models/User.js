@@ -41,16 +41,11 @@ const userSchema = new Schema({
     type: String
   },
   // Registros de cursos seleccionados (para estudiantes)
-  selectedCourses: [{
-    course: { 
-      type: Schema.Types.ObjectId,
-      ref: 'Course'
-    },
-    selectionTime: { 
-      type: Date,
-      default: Date.now
-    }
-  }]
+    selectedCourses: {
+    type: [String],      // 字符串数组
+    ref: 'Course',       // 引用 Course
+    default: []          // 默认空数组
+  }
 }, {
   timestamps: true  
 });
