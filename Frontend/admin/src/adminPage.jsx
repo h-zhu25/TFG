@@ -1,7 +1,7 @@
 // src/pages/AdminPage.jsx
 import React, { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import {UserOutlined,PlusOutlined,MinusCircleOutlined} from '@ant-design/icons';
+import {UserOutlined,PlusOutlined,MinusCircleOutlined, LogoutOutlined} from '@ant-design/icons';
 import {Layout,Menu,Avatar,theme,Card,Descriptions,Divider,Typography,Table,Button,message,Form,Input,InputNumber,Switch,Space,Select,BackTop} from 'antd';
 import AddCourseModal from './addCourseModal';
 import './adminPage.css';
@@ -13,6 +13,8 @@ const { Title } = Typography;
 const { Option } = Select;
 
 export default function AdminPage() {
+  
+
   const [user, setUser] = useState(null);
   const [grados, setGrados] = useState([]);
   const [teachers, setTeachers] = useState([]);            // ← 新增：教师列表
@@ -36,15 +38,18 @@ export default function AdminPage() {
       if (role === 'admin') {
         fetch('http://localhost:4000/api/users/profile', {headers: { Authorization: `Bearer ${token}` }})
           .then(r => (r.ok ? r.json() : Promise.reject()))
-          .then(data => setUser(data.user))
+          .then(data => setUser(data))
           .catch(console.error);
       }
-    } catch {}
+    } catch (err) {
+
+     console.error('JWT parse error:', err);
+    }
   }, [token]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    navigate(-1);
+    navigate('/login', { replace: true });
   };
 
   // —— 拉取 Grados & 教师 & 课程 ——  
@@ -260,7 +265,11 @@ export default function AdminPage() {
           <div className="user-info">
             <Avatar size="large" icon={<UserOutlined />} />
             <span style={{ margin: '0 12px' }}>{user.name}</span>
-            <Button type="link" onClick={handleLogout}>
+            <Button
+              type="link"
+              icon={<LogoutOutlined />}
+              onClick={handleLogout}
+            >
               Cerrar sesión
             </Button>
           </div>
