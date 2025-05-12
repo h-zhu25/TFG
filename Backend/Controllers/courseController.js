@@ -112,25 +112,31 @@ exports.deleteCourse = async (req, res) => {
   }
 };
 
-// GET /api/teachers/:id/courses
-// ——【修改】—— 原先按顶层 teacher 过滤，改为查 classTime.teacher  
+// controllers/courseController.js
 exports.getCoursesByTeacher = async (req, res) => {
   try {
-    const list = await Course.find({ 'classTime.teacher': req.params.id })
-      .populate('classTime.teacher', 'name email')
-      .populate('grados',            'name code');
+    const t = await User.findById(req.params.id);
+    const list = await Course.find({
+      $or: [
+        { 'classTime.teacher': req.params.id },      // ObjectId
+        { 'classTime.teacher': t.teacherID }         // teacherID 字符串
+      ]
+    })
+    .populate('classTime.teacher','name email')
+    .populate('grados','name code');
     res.json(list);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
+
 // GET /api/teachers/:id/students/:courseId
 // ——【 unchanged 】—— 老师继续能看到所有选了这门课的学生  
 exports.getStudentsByCourse = async (req, res) => {
   try {
     const students = await User.find(
-      { 'selectedCourses.course': req.params.courseId, role: 'student' },
+      { selectedCourses: req.params.courseId, role:'student' },
       'name email studentID'
     );
     res.json(students);

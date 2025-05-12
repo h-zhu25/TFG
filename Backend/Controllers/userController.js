@@ -74,12 +74,13 @@ exports.login = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    // 只选 username 和 name
-    const user = await User.findById(req.user.id).select('username name role');
+        // 把 _id, role, username, name 全都取出来
+    const user = await User.findById(req.user.id)
+    .select('_id username name role');
     if (!user) {
       return res.status(404).json({ message: 'El usuario no existe.' });
     }
-    res.json({ user });
+    res.json(user);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error del servidor' });
@@ -99,5 +100,38 @@ exports.listUsersByRole = async (req, res) => {
   } catch (err) {
     console.error('listUsersByRole error:', err);
     res.status(500).json({ message: 'No se puede obtener la lista de usuarios' });
+  }
+};
+
+exports.selectCourses = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { selectedCourses } = req.body;
+    if (!Array.isArray(selectedCourses) || selectedCourses.length === 0) {
+      return res.status(400).json({ message: '请提供 selectedCourses 数组' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: '用户不存在' });
+    }
+
+    // 这里加一个默认空数组，防止 user.selectedCourses 是 undefined
+    const existing = Array.isArray(user.selectedCourses)
+      ? user.selectedCourses
+      : [];
+
+    // 合并去重
+    const merged = Array.from(new Set([
+      ...existing,
+      ...selectedCourses
+    ]));
+    user.selectedCourses = merged;
+    await user.save();
+
+    return res.json({ selectedCourses: user.selectedCourses });
+  } catch (err) {
+    console.error('selectCourses error:', err);
+    return res.status(500).json({ message: '批量选课失败' });
   }
 };
