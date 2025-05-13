@@ -135,3 +135,31 @@ exports.selectCourses = async (req, res) => {
     return res.status(500).json({ message: '批量选课失败' });
   }
 };
+
+exports.unselectCourses = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { selectedCourses } = req.body;
+
+    if (!Array.isArray(selectedCourses)) {
+      return res.status(400).json({ message: '请提供 selectedCourses 数组' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: '用户不存在' });
+    }
+
+    // 把要移除的 courseIds 全部从 selectedCourses 里 pull 掉
+    selectedCourses.forEach(id => {
+      const idx = user.selectedCourses.indexOf(id);
+      if (idx !== -1) user.selectedCourses.splice(idx, 1);
+    });
+
+    await user.save();
+    return res.json({ selectedCourses: user.selectedCourses });
+  } catch (err) {
+    console.error('unselectCourses error:', err);
+    return res.status(500).json({ message: '取消选课失败' });
+  }
+};
