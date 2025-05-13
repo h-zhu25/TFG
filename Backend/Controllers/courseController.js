@@ -10,10 +10,10 @@ exports.getAllCourses = async (req, res) => {
     const { grado, semester, priority } = req.query;
     const userRole = req.user.role;
 
-    // ——【新增】—— 只有 Admin 可以不带 grado 参数
-    if (userRole !== 'admin' && !grado) {
-      return res.status(403).json({ message: 'Falta Permission' });
-    }
+      // 只有 teacher 必须指定 grado，admin 和 student 可以不带参数获取所有课程
+      if (userRole === 'teacher' && !grado) {
+        return res.status(403).json({ message: 'Permission denied: teacher must specify grado' });
+      }
 
     // 按查询过滤（可选顶层 grados 过滤，若保留顶层字段）
     const filter = {};

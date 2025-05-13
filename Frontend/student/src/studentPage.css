@@ -1,0 +1,162 @@
+/* src/pages/studentPage.css */
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  height: 90px;
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+.app-header::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image: linear-gradient(90deg, #5b92ac 30%, #3c4549 100%);
+  z-index: 0;
+}
+
+.app-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.logo-img img {
+  height: 80px;
+}
+
+.logo-img {
+  margin-left: 35px;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  color: #fcfcfc;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  color: #fcfcfc;
+}
+
+.user-info span {
+  margin-left: 16px;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.logout-btn {
+  color: #fff !important;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.logout-btn:hover,
+.logout-btn:focus {
+  background-color: rgba(255,255,255,0.2);
+  transform: scale(1.05);
+  text-decoration: none;
+}
+
+.app-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.app-sider {
+  width: 340px !important;
+  min-width: 340px !important;
+}
+
+.app-sider .ant-menu-item,
+.app-sider .ant-menu-submenu-title {
+  height: auto !important;
+  line-height: 1.4 !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+}
+
+.app-sider .ant-menu-item .ant-menu-title-content,
+.app-sider .ant-menu-submenu-title .ant-menu-title-content {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  padding-right: 8px !important;
+}
+
+.app-sider .ant-menu-item,
+.app-sider .ant-menu-submenu-title,
+.app-sider .ant-menu-item .ant-menu-title-content,
+.app-sider .ant-menu-submenu-title .ant-menu-title-content {
+  font-size: 16px !important;
+}
+
+.app-content {
+  flex: 1;
+  background: #f0f2f5;
+  padding: 24px;
+  overflow: auto;
+}
+
+/* 自定义回到顶部样式 */
+.custom-backtop {
+  /* 整体尺寸 */
+  width: 64px !important;
+  height: 64px !important;
+
+  /* 圆角 + 阴影 */
+  border-radius: 50% !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+
+  /* 位置 */
+  right: 32px !important;
+  bottom: 32px !important;
+}
+
+/* src/pages/studentPage.css */
+
+/* 已选课程区域标签 */
+.selected-courses {
+  margin-bottom: 16px;
+}
+
+.selected-tag {
+  font-size: 16px;
+  padding: 0 12px;
+  margin-bottom: 8px;
+}
+
+/* 尚未选择时的提示文字 */
+.no-selection {
+  color: #888;
+}
+
+/* 默认提示区域 */
+.placeholder {
+  text-align: center;
+  color: #888;
+  padding: 40px;
+}
