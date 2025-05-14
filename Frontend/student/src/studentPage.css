@@ -78,3 +78,62 @@
 .custom-backtop {
   right: 24px;
 }
+
+/* 标题：Cursos Seleccionados */
+.selected-courses .ant-typography {
+  font-size: 1.6rem;      /* 原来大约 1.2rem */
+  margin-bottom: 0.75em;
+}
+
+/* 标签：Tag */
+.selected-courses .ant-tag {
+  font-size: 1.2rem;      /* 原来大约 14px */
+  padding: 15px 12px;      /* 垂直/水平 内边距都加大 */
+  margin: 6px 10px 6px 0;
+}
+
+/* —— 强制 Radio.Button 自适应内容 —— */
+.app-content .ant-radio-group .ant-radio-button-wrapper {
+  /* 1. 改成 flex 布局，垂直水平都居中 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+
+  /* 2. 取消旧的固定高度和行高 */
+  height: auto;
+  line-height: normal;
+
+  /* 3. 保留你的放大设置 */
+  font-size: 1.15rem;
+  padding: 15px 20px;
+  min-width: 100px;      /* 可以根据内容微调，这里给个稍大一点防止溢出 */
+  white-space: nowrap;
+  text-align: center;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+/* 选中态文字加粗 */
+.app-content .ant-radio-group .ant-radio-button-wrapper-checked {
+  font-weight: 600;
+}
+
+/* 选中态加粗 */
+.app-content .ant-radio-group .ant-radio-button-wrapper-checked {
+  font-weight: 600;
+}
+
+/* 高亮态按钮：被选中时 */
+.app-content .ant-radio-group .ant-radio-button-wrapper-checked {
+  font-weight: 600;
+}
+
+
+/* 生成按钮：Generar Horario */
+.app-content .ant-btn-primary {
+  font-size: 1.25rem;     /* 放大文字 */
+  padding: 20px 30px;     /* 加大内边距 */
+  border-radius: 6px;     /* 圆角稍微加大，看起来更协调 */
+}
+

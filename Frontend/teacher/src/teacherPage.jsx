@@ -64,9 +64,10 @@ export default function TeacherPage() {
     <Layout className="app-layout">
       <Header className="app-header">
         <div className="logo">
-          <img src={logoImg} alt="Logo" />
-          <span className="title">Panel de Profesor</span>
+         <img src={logoImg} alt="Logo" />
         </div>
+        {/* 独立中间标题 */}
+        <div className="main-title">Panel de Profesor</div>
         {profile && (
           <div className="user-info">
             <Avatar icon={<UserOutlined />} />

@@ -3,6 +3,8 @@ import axios from "axios";
 import { Button, Modal } from "antd";
 import "antd/dist/reset.css";
 import "./logup.css";
+import "antd/dist/reset.css";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   // 用来控制角色和弹窗显示状态
@@ -19,6 +21,8 @@ const Register = () => {
     studentID: "",
     grade: ""
   });
+
+  const navigate = useNavigate();
 
   const roleNameMap = {
     admin: "Administrador / Administradora",
@@ -72,6 +76,8 @@ const Register = () => {
         alert("¡Registro exitoso!");
         console.log(response.data);
         setIsModalVisible(false);
+        setIsModalVisible(false);
+        navigate("/login");
       }
     } catch (error) {
       console.error("注册失败：", error);

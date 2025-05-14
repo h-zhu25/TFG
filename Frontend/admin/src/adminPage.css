@@ -42,7 +42,7 @@ html, body, #root {
 
 /* Logo 区域 */
 .logo-img img {
-  height: 80px;   /* 根据实际 logo 大小调整 */
+  height: 76px !important;   /* 根据实际 logo 大小调整 */
 }
 
 .logo-img {
@@ -58,7 +58,7 @@ html, body, #root {
 
 /* 中间大标题 */
 .main-title {
-  font-size: 2.5rem; 
+  font-size: 2.4rem !important; 
   font-weight: bold;
   text-align: center;
   color: #fcfcfc;
@@ -69,6 +69,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   color: #fcfcfc;
+  font-size: 1.2rem !important;
 }
 
 .user-details {
@@ -157,3 +158,14 @@ html, body, #root {
   font-weight: 700 !important;     /* 粗体 */
 }
 
+/* Avatar 图标 */
+.user-info .ant-avatar {
+  width: 50px !important;     /* 原 large 是 40px，改成 64px */
+  height: 50px !important;
+  font-size: 32px !important; /* icon 字体也跟着放大 */
+}
+
+.user-info .ant-btn {
+  font-size: 1.0rem !important;  /* link 类型按钮文字放大 */
+  padding: 4px 8px !important;    /* 增加可点击区域 */
+}
