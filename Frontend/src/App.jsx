@@ -282,7 +282,7 @@ const App = () => {
                 size: 'large',
                 prefix: <UserOutlined />,
                 }}
-              placeholder="Usuario: "
+              placeholder="Usuario: Email"
               rules={[{ required: true, message: 'Por favor, ingrese el nombre de usuario!' }]}
             />
             <ProFormText.Password
