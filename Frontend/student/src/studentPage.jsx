@@ -48,7 +48,7 @@ export default function StudentPage() {
   // — Paginación de propuestas —
   const [page, setPage] = useState(1);
   const pageSize = 1;
-  const maxPropuestas = 15;
+  const maxPropuestas = 20;
 
   const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
   const navigate = useNavigate();
