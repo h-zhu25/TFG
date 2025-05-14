@@ -161,9 +161,9 @@ const Register = () => {
               onChange={handleInputChange}
             />
             <input
-              type="text"
-              name="grade"
-              placeholder="Carrera universitaria"
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirmar contraseña"
               required
               onInvalid={e => e.target.setCustomValidity('Por favor, rellena este campo.')}
               onInput={e => e.target.setCustomValidity('')}
@@ -172,13 +172,15 @@ const Register = () => {
 
             {/* 根据不同角色显示额外输入项 */}
             {role === "teacher" && (
-              <input
-                type="text"
-                name="teacherID"
-                placeholder="ProfesorID"
-                required
-                onChange={handleInputChange}
-              />
+            <input
+              type="text"
+              name="teacherID"
+              placeholder="ProfesorID"
+              required
+              onInvalid={e => e.target.setCustomValidity('Por favor, rellena este campo.')}
+              onInput={e => e.target.setCustomValidity('')}
+              onChange={handleInputChange}
+            />
             )}
 
             {role === "student" && (
@@ -188,6 +190,8 @@ const Register = () => {
                   name="studentID"
                   placeholder="EstudianteID"
                   required
+                  onInvalid={e => e.target.setCustomValidity('Por favor, rellena este campo.')}
+                  onInput={e => e.target.setCustomValidity('')}
                   onChange={handleInputChange}
                 />
                 <input
@@ -195,6 +199,8 @@ const Register = () => {
                   name="grade"
                   placeholder="Carrera universitaria"
                   required
+                  onInvalid={e => e.target.setCustomValidity('Por favor, rellena este campo.')}
+                  onInput={e => e.target.setCustomValidity('')}
                   onChange={handleInputChange}
                 />
               </>
