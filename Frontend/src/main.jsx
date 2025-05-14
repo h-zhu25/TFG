@@ -5,6 +5,7 @@ import App from './App.jsx';                    // 登录页
 import Register from '../log_up/src/logup.jsx'; // 注册页
 import AdminPage from '../admin/src/adminPage.jsx';
 import TeacherPage from '../teacher/src/teacherPage.jsx';
+import StudentPage from '../student/src/studentPage.jsx';
 import './index.css';
 
 createRoot(document.getElementById('root')).render(
@@ -16,6 +17,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/register" element={<Register />} />
         <Route path="/login/admin" element={<AdminPage />} />
         <Route path="/login/teacher" element={<TeacherPage />} />
+        <Route path="/login/student" element={< StudentPage/>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

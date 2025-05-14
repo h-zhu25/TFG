@@ -70,12 +70,12 @@ export default function TeacherPage() {
         {profile && (
           <div className="user-info">
             <Avatar icon={<UserOutlined />} />
-            <span className="user-name">{profile.name}</span>
+            <span className="user-name" style={{ margin: '0 12px' }}>{profile.name}</span>
             <Button
              type="link"
              icon={<LogoutOutlined />}
              onClick={handleLogout}
-             style={{ color: '#fff', marginLeft: 16 }}
+             style={{ color: '#fff', marginLeft: 10,fontSize: '18px' }}
            >
              Exit
            </Button>

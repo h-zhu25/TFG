@@ -165,7 +165,7 @@ const Register = () => {
                 <input
                   type="text"
                   name="grade"
-                  placeholder="Grado"
+                  placeholder=""
                   required
                   onChange={handleInputChange}
                 />
