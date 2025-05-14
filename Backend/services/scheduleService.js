@@ -16,27 +16,45 @@ function isConflict(a, b) {
 
 /** 计算一个完整排课方案的得分：优先级之和 + 每天空档惩罚 */
 function computeScore(path) {
-  // 1) 累加优先级
   let score = path.reduce((sum, { course }) => sum + computePriority(course), 0);
 
-  // 2) 按天分组，计算空档小时数加分
   const byDay = {};
   for (const { slot } of path) {
-    byDay[slot.day] = byDay[slot.day] || [];
-    byDay[slot.day].push(slot);
+    (byDay[slot.day] = byDay[slot.day] || []).push(slot);
   }
   for (const slots of Object.values(byDay)) {
     slots.sort((a, b) => a.start.localeCompare(b.start));
     for (let i = 1; i < slots.length; i++) {
-      const [h1, m1] = slots[i-1].end.split(':').map(Number);
+      const [h1, m1] = slots[i - 1].end.split(':').map(Number);
       const [h2, m2] = slots[i].start.split(':').map(Number);
-      score += (h2 + m2/60) - (h1 + m1/60);
+      score += (h2 + m2 / 60) - (h1 + m1 / 60);
     }
   }
+
   return score;
 }
 
-async function generateSchedules(selectedCourseIds) {
+/** 将 "HH:MM" 转为分钟数 */
+function toMinutes(str) {
+  const [h, m] = str.split(':').map(Number);
+  return h * 60 + m;
+}
+
+/**
+ * 计算 slot 与 [ws, we] 窗口的重合分钟数
+ */
+function overlapMinutes(slot, ws, we) {
+  const start = Math.max(toMinutes(slot.start), toMinutes(ws));
+  const end   = Math.min(toMinutes(slot.end),   toMinutes(we));
+  return Math.max(0, end - start);
+}
+
+/**
+ * 生成排课方案
+ * @param {string[]} selectedCourseIds
+ * @param {'morning'|'afternoon'|null} preference
+ */
+async function generateSchedules(selectedCourseIds, preference = null) {
   // 1. 拉取并按 priority 升序
   const courses = await Course.find({ _id: { $in: selectedCourseIds } });
   courses.sort((a, b) => computePriority(a) - computePriority(b));
@@ -49,7 +67,7 @@ async function generateSchedules(selectedCourseIds) {
       if (
         allowedDays.includes(slot.day) &&
         slot.start >= '09:00' &&
-        slot.end <= '21:00'
+        slot.end   <= '21:00'
       ) {
         const key = slot.group || course._id.toString();
         (groups[key] = groups[key] || []).push(slot);
@@ -61,11 +79,11 @@ async function generateSchedules(selectedCourseIds) {
     };
   });
 
+  // 3. 回溯枚举所有可行方案
   const results = [];
-  let path = [];               // 当前排入的 [{course, group, slot},…]
+  let path = [];
   const doNotRecommend = new Set();
 
-  // 3. 回溯
   function backtrack(idx) {
     if (idx === coursesWithGroups.length) {
       results.push([...path]);
@@ -74,40 +92,25 @@ async function generateSchedules(selectedCourseIds) {
     const { course, slotGroups } = coursesWithGroups[idx];
     let anyPlaced = false;
 
-    // 跳过这门课也算一次分支
-    
-
     for (const { group, slots } of slotGroups) {
-      // 检查与 path 中是否冲突
       const conflict = slots
         .map(s => path.find(p => isConflict(p.slot, s)))
         .find(Boolean);
 
       if (conflict) {
-        // 冲突：比较两门课 priority
         const other = conflict.course;
         if (computePriority(course) < computePriority(other)) {
-          // 当前更优，移除 path 中 other 的所有同 group 条目
           path = path.filter(p =>
             !(p.course._id.equals(other._id) && p.group === conflict.group)
           );
         } else {
-          continue;  // 当前更差，跳过此 group
+          continue;
         }
       }
 
-      // 放入这整组
       anyPlaced = true;
-      for (const slot of slots) {
-        path.push({ course, group, slot });
-      }
-
-      // 限制结果数防爆炸
-      if (results.length < 50) {
-        backtrack(idx + 1);
-      }
-
-      // 回溯：移除刚加的这组
+      slots.forEach(slot => path.push({ course, group, slot }));
+      if (results.length < 8888) backtrack(idx + 1);
       for (let i = 0; i < slots.length; i++) path.pop();
     }
 
@@ -117,24 +120,36 @@ async function generateSchedules(selectedCourseIds) {
   }
 
   backtrack(0);
-
-  // 如果无可行方案，所有课程均标记
   if (results.length === 0) {
     courses.forEach(c => doNotRecommend.add(c._id.toString()));
   }
 
-  // 4. 按得分排序（优先级+空档）
+  // 4. 按分数排序
   results.sort((a, b) => computeScore(a) - computeScore(b));
 
-  // 5. 格式化输出
+  // 5. **偏好排序**：按上午或下午重合分钟数降序
+  if (preference === 'morning' || preference === 'afternoon') {
+    // 定义窗口
+    const [ws, we] = preference === 'morning'
+      ? ['09:00','15:00']
+      : ['15:00','21:00'];
+
+    results.sort((a, b) => {
+      const ma = a.reduce((sum, p) => sum + overlapMinutes(p.slot, ws, we), 0);
+      const mb = b.reduce((sum, p) => sum + overlapMinutes(p.slot, ws, we), 0);
+      return mb - ma;  // 降序：重合分钟数多的靠前
+    });
+  }
+
+  // 6. 格式化输出
   const schedules = results.map(schedule =>
-    schedule.map(({ course, slot, group, classroom }) => ({
+    schedule.map(({ course, slot, group }) => ({
       courseCode: course.code,
       group,
-      classroom:  slot.classroom,
-      day:        slot.day,
-      startTime:  slot.start,
-      endTime:    slot.end
+      classroom: slot.classroom,
+      day:       slot.day,
+      startTime: slot.start,
+      endTime:   slot.end
     }))
   );
 

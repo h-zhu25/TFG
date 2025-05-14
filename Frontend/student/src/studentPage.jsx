@@ -15,6 +15,7 @@ import {
   Spin,
   Alert,
   Pagination,
+  Radio,
   message,
 } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -27,6 +28,7 @@ import logoImg from './assets/ETSISI_logo2.png';
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 
+
 export default function StudentPage() {
   // — Estados originales —
   const [usuario, setUsuario] = useState(null);
@@ -35,6 +37,7 @@ export default function StudentPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [cursoModal, setCursoModal] = useState(null);
   const [cursosSeleccionados, setCursosSeleccionados] = useState([]);
+  const [preference, setPreference] = useState(null);
 
   // — Estados nuevos: resultados y UI —
   const [horarios, setHorarios] = useState([]);
@@ -65,7 +68,7 @@ export default function StudentPage() {
         prev.filter(c => c._id !== courseId)
       );
       message.success('Curso eliminado de tu selección');
-      generarHorarios();
+      
     } catch (err) {
       console.error(err);
       message.error('No se pudo eliminar el curso. Intenta de nuevo.');
@@ -186,10 +189,14 @@ export default function StudentPage() {
     }
     setCargando(true);
     setError(null);
+    setNoRecomendados([]);
+    
     try {
       const resp = await axios.post(
         'http://localhost:4000/api/schedule',
-        { selectedCourseIds: cursosSeleccionados.map(c => c._id) },
+        { selectedCourseIds: cursosSeleccionados.map(c => c._id),
+          preference,
+         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setHorarios(resp.data.schedules);
@@ -271,6 +278,18 @@ export default function StudentPage() {
                   No has seleccionado ningún curso
                 </span>
               )}
+            </div>
+
+            <div style={{ margin: '16px 0', textAlign: 'center' }}>
+              <Radio.Group
+                value={preference}
+                onChange={e => setPreference(e.target.value)}
+                buttonStyle="solid"
+              >
+                <Radio.Button value={null}>Mixto</Radio.Button>
+                <Radio.Button value="morning">Sólo Mañana</Radio.Button>
+                <Radio.Button value="afternoon">Sólo Tarde</Radio.Button>
+              </Radio.Group>
             </div>
 
             <div style={{ margin: '16px 0' }}>
