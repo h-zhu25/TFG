@@ -54,26 +54,32 @@ export default function StudentPage() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  // 处理取消选课：调用后端并更新本地 state
+  
   const handleRemoveCourse = async courseId => {
-    try {
-      await axios.delete(
-        'http://localhost:4000/api/users/select-courses',
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          data:    { selectedCourses: [courseId] },
-        }
-      );
-      setCursosSeleccionados(prev =>
-        prev.filter(c => c._id !== courseId)
-      );
-      message.success('Curso eliminado de tu selección');
-      
-    } catch (err) {
-      console.error(err);
-      message.error('No se pudo eliminar el curso. Intenta de nuevo.');
-    }
-  };
+  
+  const previo = cursosSeleccionados;
+  setCursosSeleccionados(prev =>
+    prev.filter(c => c._id !== courseId)
+  );
+
+  try {
+    
+    await axios.delete(
+      'http://localhost:4000/api/users/select-courses',
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        data:    { selectedCourses: [courseId] },
+      }
+    );
+    message.success('Curso eliminado de tu selección');
+  } catch (err) {
+    console.error('Error al eliminar selección:', err);
+    message.error('No se pudo eliminar en el servidor');
+    // 3) 回滚本地 state
+    setCursosSeleccionados(previo);
+  }
+};
+
 
   // 1. Verificar token y obtener perfil
   useEffect(() => {
@@ -168,17 +174,35 @@ export default function StudentPage() {
       setModalVisible(true);
     }
   };
-  const confirmarSeleccion = () => {
-    if (
-      cursoModal &&
-      !cursosSeleccionados.some(c => c._id === cursoModal._id)
-    ) {
-      setCursosSeleccionados(prev => [...prev, cursoModal]);
+  const confirmarSeleccion = async () => {
+  if (
+    cursoModal &&
+    !cursosSeleccionados.some(c => c._id === cursoModal._id)
+  ) {
+    
+    setCursosSeleccionados(prev => [...prev, cursoModal]);
+
+    try {
       
+      await axios.post(
+        'http://localhost:4000/api/users/select-courses',
+        { selectedCourses: [cursoModal._id] },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      message.success('Curso añadido correctamente');
+    } catch (err) {
+      console.error('Error al guardar selección:', err);
+      message.error('No se pudo guardar en el servidor');
+      
+      setCursosSeleccionados(prev =>
+        prev.filter(c => c._id !== cursoModal._id)
+      );
     }
-    setModalVisible(false);
-    setCursoModal(null);
-  };
+  }
+  setModalVisible(false);
+  setCursoModal(null);
+};
+
   const cancelarSeleccion = () => setModalVisible(false);
 
   // 4. Generar propuestas
