@@ -15,6 +15,7 @@ import {
   Spin,
   Alert,
   Pagination,
+  message,
 } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -49,6 +50,27 @@ export default function StudentPage() {
   const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+
+  // 处理取消选课：调用后端并更新本地 state
+  const handleRemoveCourse = async courseId => {
+    try {
+      await axios.delete(
+        'http://localhost:4000/api/users/select-courses',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          data:    { selectedCourses: [courseId] },
+        }
+      );
+      setCursosSeleccionados(prev =>
+        prev.filter(c => c._id !== courseId)
+      );
+      message.success('Curso eliminado de tu selección');
+      generarHorarios();
+    } catch (err) {
+      console.error(err);
+      message.error('No se pudo eliminar el curso. Intenta de nuevo.');
+    }
+  };
 
   // 1. Verificar token y obtener perfil
   useEffect(() => {
@@ -134,7 +156,7 @@ export default function StudentPage() {
     };
   });
 
-  // Handlers
+  // Handlers de selección
   const manejarClickMenu = ({ key }) => {
     const parts = key.split('-');
     if (parts.length === 3) {
@@ -149,13 +171,12 @@ export default function StudentPage() {
       !cursosSeleccionados.some(c => c._id === cursoModal._id)
     ) {
       setCursosSeleccionados(prev => [...prev, cursoModal]);
+      
     }
     setModalVisible(false);
     setCursoModal(null);
   };
   const cancelarSeleccion = () => setModalVisible(false);
-  const quitarCurso = id =>
-    setCursosSeleccionados(prev => prev.filter(c => c._id !== id));
 
   // 4. Generar propuestas
   const generarHorarios = async () => {
@@ -181,7 +202,7 @@ export default function StudentPage() {
     }
   };
 
-  // Sólo mostrar hasta maxPropuestas
+  // Paginación: solo mostrar hasta maxPropuestas
   const displayHorarios = horarios.slice(0, maxPropuestas);
   const total = displayHorarios.length;
   const propuestaActual = displayHorarios[page - 1];
@@ -240,7 +261,7 @@ export default function StudentPage() {
                   <Tag
                     key={c._id}
                     closable
-                    onClose={() => quitarCurso(c._id)}
+                    onClose={() => handleRemoveCourse(c._id)}
                   >
                     {c.code} – {c.name}
                   </Tag>
@@ -283,7 +304,7 @@ export default function StudentPage() {
             )}
 
             {/* Paginación de propuestas */}
-            {!cargando && total > 0 && (
+             {cursosSeleccionados.length > 0 && !cargando && horarios.length > 0 && (
               <div style={{ textAlign: 'center', marginTop: 24 }}>
                 <Title level={5}>
                   Propuesta {page} de {total}
@@ -325,9 +346,11 @@ export default function StudentPage() {
               )}
             </Modal>
 
+           {!cursosSeleccionados.length && !cargando && horarios.length === 0 && (
             <div className="placeholder">
               Haz clic en la barra lateral para añadir cursos
             </div>
+           )}
             <FloatButton.BackTop
               className="custom-backtop"
               visibilityHeight={200}
