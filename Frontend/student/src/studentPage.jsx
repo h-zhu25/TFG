@@ -315,7 +315,7 @@ export default function StudentPage() {
                 <Radio.Button value="afternoon">Sólo Tarde</Radio.Button>
               </Radio.Group>
             </div>
-
+            
             <div style={{ margin: '16px 0' }}>
               <Button
                 type="primary"
