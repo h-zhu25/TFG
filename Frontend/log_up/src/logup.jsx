@@ -3,6 +3,8 @@ import axios from "axios";
 import { Button, Modal } from "antd";
 import "antd/dist/reset.css";
 import "./logup.css";
+import "antd/dist/reset.css";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   // 用来控制角色和弹窗显示状态
@@ -19,6 +21,8 @@ const Register = () => {
     studentID: "",
     grade: ""
   });
+
+  const navigate = useNavigate();
 
   const roleNameMap = {
     admin: "Administrador / Administradora",
@@ -72,6 +76,8 @@ const Register = () => {
         alert("¡Registro exitoso!");
         console.log(response.data);
         setIsModalVisible(false);
+        setIsModalVisible(false);
+        navigate("/login");
       }
     } catch (error) {
       console.error("注册失败：", error);
@@ -118,6 +124,8 @@ const Register = () => {
               name="username"
               placeholder="Usuario"
               required
+              onInvalid={e => e.target.setCustomValidity('Por favor, rellena este campo.')}
+              onInput={e => e.target.setCustomValidity('')}
               onChange={handleInputChange}
             />
             <input
@@ -125,6 +133,22 @@ const Register = () => {
               name="email"
               placeholder="Correo electrónico"
               required
+              onInvalid={e => {
+                const val = e.target.value;
+                if (e.target.validity.valueMissing) {
+                  // 为空
+                  e.target.setCustomValidity('Por favor, rellena este campo.');
+                } else if (e.target.validity.typeMismatch) {
+                  // 缺少 '@' 以后部分
+                  if (/@$/.test(val)) {
+                    e.target.setCustomValidity('Por favor, introduce la parte después de “@” en la dirección de correo electrónico.');
+                  } else {
+                    // 其它格式错误
+                    e.target.setCustomValidity('Por favor, introduce una dirección de correo electrónico válida.');
+                  }
+                }
+              }}
+              onInput={e => e.target.setCustomValidity('')}
               onChange={handleInputChange}
             />
             <input
@@ -132,6 +156,8 @@ const Register = () => {
               name="password"
               placeholder="Contraseña"
               required
+              onInvalid={e => e.target.setCustomValidity('Por favor, rellena este campo.')}
+              onInput={e => e.target.setCustomValidity('')}
               onChange={handleInputChange}
             />
             <input
@@ -139,18 +165,22 @@ const Register = () => {
               name="confirmPassword"
               placeholder="Confirmar contraseña"
               required
+              onInvalid={e => e.target.setCustomValidity('Por favor, rellena este campo.')}
+              onInput={e => e.target.setCustomValidity('')}
               onChange={handleInputChange}
             />
 
             {/* 根据不同角色显示额外输入项 */}
             {role === "teacher" && (
-              <input
-                type="text"
-                name="teacherID"
-                placeholder="ProfesorID"
-                required
-                onChange={handleInputChange}
-              />
+            <input
+              type="text"
+              name="teacherID"
+              placeholder="ProfesorID"
+              required
+              onInvalid={e => e.target.setCustomValidity('Por favor, rellena este campo.')}
+              onInput={e => e.target.setCustomValidity('')}
+              onChange={handleInputChange}
+            />
             )}
 
             {role === "student" && (
@@ -160,13 +190,17 @@ const Register = () => {
                   name="studentID"
                   placeholder="EstudianteID"
                   required
+                  onInvalid={e => e.target.setCustomValidity('Por favor, rellena este campo.')}
+                  onInput={e => e.target.setCustomValidity('')}
                   onChange={handleInputChange}
                 />
                 <input
                   type="text"
                   name="grade"
-                  placeholder=""
+                  placeholder="Carrera universitaria"
                   required
+                  onInvalid={e => e.target.setCustomValidity('Por favor, rellena este campo.')}
+                  onInput={e => e.target.setCustomValidity('')}
                   onChange={handleInputChange}
                 />
               </>
