@@ -76,7 +76,7 @@ exports.getProfile = async (req, res) => {
   try {
         // 把 _id, role, username, name 全都取出来
     const user = await User.findById(req.user.id)
-    .select('_id username name role');
+    .select('_id username name role selectedCourses');
     if (!user) {
       return res.status(404).json({ message: 'El usuario no existe.' });
     }

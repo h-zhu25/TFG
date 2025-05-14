@@ -1,0 +1,51 @@
+/* src/TimetableGrid.css */
+.timetable-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.9rem;
+}
+
+.timetable-table th,
+.timetable-table td {
+  border: 1px solid #e0e0e0;
+  padding: 4px;
+  text-align: center;
+}
+
+.timetable-table thead th {
+  background: #f5f5f5;
+  font-weight: bold;
+}
+
+.time-cell {
+  width: 8rem;
+  background: #fafafa;
+  text-align: right;
+  padding-right: 8px;
+}
+
+.course-cell {
+  height: 3rem;
+  vertical-align: middle;
+  padding: 2px;
+  background: #fff;    /* 默认白底 */
+  transition: background 0.2s, color 0.2s;
+}
+
+/* 深蓝底，白字 */
+.course-cell.has-course {
+  background: #00AEEF; /* 深蓝 */
+  color: #fff;
+}
+
+.course-code {
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.course-group {
+  font-size: 0.75rem;
+  /* 文字白色或使用继承 */
+  color: inherit;
+}
