@@ -30,4 +30,11 @@ router.post(
   userController.selectCourses
 );
 
+router.delete(
+  '/select-courses',
+  authenticateJWT,
+  authorizeRole('student'),
+  userController.unselectCourses
+);
+
 module.exports = router;

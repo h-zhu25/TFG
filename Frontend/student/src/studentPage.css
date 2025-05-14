@@ -1,0 +1,80 @@
+/* 布局容器 */
+.app-layout {
+  height: 100vh;
+}
+
+/* 头部 */
+.app-header {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  background: #3b5998;
+  color: white;
+}
+
+/* Logo 区 */
+.logo-img img {
+  height: 40px;
+  margin-right: 16px;
+}
+
+/* 标题 */
+.main-title {
+  flex: 1;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* 用户信息 */
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+/* 侧边栏 */
+.app-body {
+  height: calc(100% - 64px);
+}
+
+.app-sider {
+  width: 240px;
+}
+
+/* 内容区 */
+.app-content-wrapper {
+  padding: 24px;
+  background: var(--bg-container);
+}
+
+.app-content {
+  background: white;
+  padding: 24px;
+  border-radius: var(--border-radius-lg);
+  min-height: 100%;
+}
+
+/* 已选课程标签 */
+.selected-courses {
+  margin-bottom: 16px;
+}
+
+.selected-tag {
+  margin: 4px 8px 4px 0;
+}
+
+/* 无课程提示 */
+.no-selection {
+  color: #999;
+}
+
+/* 占位文字 */
+.placeholder {
+  text-align: center;
+  color: #aaa;
+  margin-top: 48px;
+}
+
+/* 回到顶部 */
+.custom-backtop {
+  right: 24px;
+}
