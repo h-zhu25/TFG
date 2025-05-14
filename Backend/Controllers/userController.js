@@ -108,12 +108,12 @@ exports.selectCourses = async (req, res) => {
     const userId = req.user.id;
     const { selectedCourses } = req.body;
     if (!Array.isArray(selectedCourses) || selectedCourses.length === 0) {
-      return res.status(400).json({ message: '请提供 selectedCourses 数组' });
+      return res.status(400).json({ message: 'Por favor, proporciona el arreglo selectedCourses' });
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: '用户不存在' });
+      return res.status(404).json({ message: 'El usuario no existe' });
     }
 
     // 这里加一个默认空数组，防止 user.selectedCourses 是 undefined
@@ -132,7 +132,7 @@ exports.selectCourses = async (req, res) => {
     return res.json({ selectedCourses: user.selectedCourses });
   } catch (err) {
     console.error('selectCourses error:', err);
-    return res.status(500).json({ message: '批量选课失败' });
+    return res.status(500).json({ message: 'Error al seleccionar cursos en lote' });
   }
 };
 
@@ -142,12 +142,12 @@ exports.unselectCourses = async (req, res) => {
     const { selectedCourses } = req.body;
 
     if (!Array.isArray(selectedCourses)) {
-      return res.status(400).json({ message: '请提供 selectedCourses 数组' });
+      return res.status(400).json({ message: 'Por favor, proporciona el arreglo selectedCourses' });
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: '用户不存在' });
+      return res.status(404).json({ message: 'El usuario no existe' });
     }
 
     // 把要移除的 courseIds 全部从 selectedCourses 里 pull 掉
@@ -160,6 +160,6 @@ exports.unselectCourses = async (req, res) => {
     return res.json({ selectedCourses: user.selectedCourses });
   } catch (err) {
     console.error('unselectCourses error:', err);
-    return res.status(500).json({ message: '取消选课失败' });
+    return res.status(500).json({ message: 'Error al cancelar la selección del curso' });
   }
 };

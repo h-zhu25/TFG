@@ -192,6 +192,7 @@ const AddCourseModal = ({
                       <Option value="Viernes">Viernes</Option>
                     </Select>
                   </Form.Item>
+                  
                   <Form.Item
                     {...rest}
                     name={[name, 'start']}
@@ -199,6 +200,7 @@ const AddCourseModal = ({
                   >
                     <Input type="time" />
                   </Form.Item>
+
                   <Form.Item
                     {...rest}
                     name={[name, 'end']}
@@ -206,6 +208,7 @@ const AddCourseModal = ({
                   >
                     <Input type="time" />
                   </Form.Item>
+
                   <Form.Item
                     {...rest}
                     name={[name, 'classroom']}
@@ -214,8 +217,15 @@ const AddCourseModal = ({
                     <Input placeholder="Aula" />
                   
                   </Form.Item>
-                  <Form.Item {...rest} name={[name, 'group']}>
-                    <Input placeholder="Grupo (Opcional)" />
+
+                  <Form.Item
+                    {...rest}
+                    name={[name, 'group']}
+                    rules={[
+                      { required: true, message: 'Por favor, ingresa el grupo' }
+                    ]}
+                  >
+                    <Input placeholder="Grupo" />
                   </Form.Item>
 
                   <Form.Item
