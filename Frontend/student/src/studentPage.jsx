@@ -10,13 +10,13 @@ import {
   Typography,
   Modal,
   Tag,
-  FloatButton,
+  BackTop,
   theme,
   Spin,
   Alert,
   Pagination,
   Radio,
-  message,
+  message
 } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -394,9 +394,10 @@ export default function StudentPage() {
               Haz clic en la barra lateral para añadir cursos
             </div>
            )}
-            <FloatButton.BackTop
-              className="custom-backtop"
-              visibilityHeight={200}
+            <BackTop
+              visibilityHeight={0}
+              style={{ right: 40, bottom: 40 }}
+              target={() => document.querySelector('.app-sider')}
             />
           </Content>
         </Layout>

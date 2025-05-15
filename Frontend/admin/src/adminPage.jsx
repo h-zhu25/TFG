@@ -525,7 +525,11 @@ export default function AdminPage() {
       />
     </Layout>
 
-   <BackTop visibilityHeight={0} style={{ right: 40, bottom: 40 }} />
+     <BackTop
+        visibilityHeight={0}
+        style={{ right: 40, bottom: 40 }}
+        target={() => document.querySelector('.app-sider')}
+      />
     </>
   );
 }
